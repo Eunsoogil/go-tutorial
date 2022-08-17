@@ -16,16 +16,29 @@ F5 -> 실행
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"internal/greeting"
+	"os"
 )
 
 func main() {
 	fmt.Println("Hello Wolrd")
+
+	// 동일 main package
+	goodByeWorld()
+
+	// 외부 패키지 함수 실행
+	greeting.Hello("John")
+
 	var student1 string = "John"
 
 	// 아래 경우들은 compiler가 타입을 추론
 	var student2 = "Jane"
 	x := 2
+
+	// 사용하지 않을 변수를 함수내에 선언하면 에러
+	// var unusedVariable = ""
 
 	fmt.Println(student1)
 	fmt.Println(student2)
@@ -77,12 +90,21 @@ func main() {
 
 	testMap()
 
+	testPointer()
+
+	testInterface()
+
+	testEmptyInterface()
+
+	testPanicRevocer()
+
 }
 
 // var는 외부에서 선언 가능, := 의 경우 불가능
 var a int
 
 // b := 3
+
 func testVar() int {
 	a = 1
 	return a
@@ -147,6 +169,7 @@ func basicDataTypes() {
 
 		int64
 		-9223372036854775808 to 9223372036854775807
+
 	*/
 	var x int = 500
 	var y int16 = -4500
@@ -273,9 +296,13 @@ func conditionsAndLoop() {
 
 // function
 // return할 변수를 미리 정하고 return 명령어만으로 return 가능하며, 여러 parameter를 return 가능
+// defer : 함수 호출이 끝나고 실행
 func testFunction(x int, y string) (result int, txt1 string) {
+	defer fmt.Println("함수 종료")
+	fmt.Println("함수 시작")
 	result = x + x
 	txt1 = y + " World!"
+	fmt.Println(result, txt1)
 	return
 }
 
@@ -379,4 +406,140 @@ func testMap() {
 	for k, v := range a {
 		fmt.Printf("%v : %v, ", k, v)
 	}
+	fmt.Println(b)
+}
+
+// 포인터
+type Data struct {
+	value int
+	data  [200]int
+}
+
+func changeData(arg Data) {
+	arg.value = 100
+	arg.data[100] = 999
+}
+
+func changePData(arg *Data) {
+	arg.value = 100
+	arg.data[100] = 999
+}
+
+func testPointer() {
+	var a int = 10
+	var p *int
+
+	fmt.Println(a)
+	fmt.Println(p)
+
+	p = &a
+	fmt.Printf("%v\n", &a)
+	fmt.Printf("%v\n", p)
+
+	*p = 20
+	fmt.Println(a)
+	fmt.Println(*p)
+
+	var data Data
+	changeData(data)
+	fmt.Printf("\nvalue = %d\n", data.value)
+	fmt.Printf("data[100] = %d\n", data.data[100])
+
+	changePData(&data)
+	fmt.Printf("value = %d\n", data.value)
+	fmt.Printf("data[100] = %d\n", data.data[100])
+}
+
+type Human interface {
+	Walk() string
+}
+
+type Student struct {
+	Name string
+	Age  int
+}
+
+func (s Student) Walk() string {
+	return fmt.Sprintf("%s can walk", s.Name)
+}
+
+func (s Student) GetAge() int {
+	return s.Age
+}
+
+func testInterface() {
+	s := Student{Name: "John", Age: 20}
+	var h Human = s
+
+	fmt.Println(h.Walk())
+	// fmt.Println(h.GetAge()) // ERROR
+}
+
+func Print(v interface{}) {
+	switch v := v.(type) {
+	case int:
+		fmt.Println("v is int", v)
+	case float64:
+		fmt.Println("v is float64", v)
+	case string:
+		fmt.Println("v is string", v)
+	default:
+		fmt.Printf("Not supported %T:%v\n", v, v)
+	}
+}
+
+func testEmptyInterface() {
+	Print(10)
+	Print(3.14)
+	Print("Hello word")
+	Print(Student{Age: 10})
+}
+
+// 에러 핸들링
+func ReadFile(filename string) (string, error) {
+	file, err := os.Open(filename)
+
+	if err != nil {
+		return "", err
+	}
+
+	defer file.Close()
+
+	rd := bufio.NewReader(file)
+	line, _ := rd.ReadString('\n')
+
+	return line, nil
+}
+
+// panic, recover
+func firstCall() {
+	fmt.Println("(2) firstCall function start")
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in firstCall", r)
+		}
+	}()
+
+	group()
+	fmt.Println("(2) firstCall function end")
+}
+
+func group() {
+	fmt.Println("(3) group function start")
+	fmt.Printf("4/2 = %d\n", divide(4, 2))
+	fmt.Printf("4/0 = %d\n", divide(4, 0))
+	fmt.Println("(3) group function end")
+}
+
+func divide(a, b int) int {
+	if b == 0 {
+		panic("divide by zero")
+	}
+	return a / b
+}
+
+func testPanicRevocer() {
+	fmt.Println("(1) main function start")
+	firstCall()
+	fmt.Println("(1) main function end")
 }
