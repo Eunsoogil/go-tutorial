@@ -110,10 +110,10 @@ func checkLinkWithChannel(link string, c chan string) {
 	_, err := http.Get(link)
 	if err != nil {
 		fmt.Println(link, "is not connected!")
-		c <- link + " is not connected!"
+		c <- link
 	}
 
 	fmt.Println(link, "is connected")
-	c <- link + " is connected"
+	c <- link
 
 }
