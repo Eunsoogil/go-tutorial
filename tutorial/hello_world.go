@@ -20,11 +20,12 @@ import (
 	"fmt"
 	"internal/greeting"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
 	fmt.Println("Hello Wolrd")
-
 	// 동일 main package
 	goodByeWorld()
 
@@ -235,7 +236,8 @@ func basicDataTypes() {
 	myslice2 = append(myslice2, myslice1...)
 	slicePrintFormat("make myslice2", myslice2)
 
-	// copy : memory에 올라간 capacity를 줄이는 효과가 있음
+	// copy : 얕은 복사
+	// memory에 올라간 capacity를 줄이는 효과가 있음
 	numbers := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
 	// Original slice
 	slicePrintFormat("original array", numbers)
@@ -328,6 +330,14 @@ type Person struct {
 	salary int
 }
 
+// receiver 정의, 내부 메소드
+func (p Person) introduce() {
+	fmt.Println("Name: ", p.name)
+	fmt.Println("Age: ", p.age)
+	fmt.Println("Job: ", p.job)
+	fmt.Println("Salary: ", p.salary)
+}
+
 func testStruct() {
 	var pers1 Person
 	var pers2 Person
@@ -344,17 +354,8 @@ func testStruct() {
 	pers2.job = "Marketing"
 	pers2.salary = 4500
 
-	// Access and print Pers1 info
-	fmt.Println("Name: ", pers1.name)
-	fmt.Println("Age: ", pers1.age)
-	fmt.Println("Job: ", pers1.job)
-	fmt.Println("Salary: ", pers1.salary)
-
-	// Access and print Pers2 info
-	fmt.Println("Name: ", pers2.name)
-	fmt.Println("Age: ", pers2.age)
-	fmt.Println("Job: ", pers2.job)
-	fmt.Println("Salary: ", pers2.salary)
+	pers1.introduce()
+	pers2.introduce()
 }
 
 type test string
@@ -422,17 +423,20 @@ func testMap() {
 // 포인터
 type Data struct {
 	value int
-	data  [200]int
 }
 
 func changeData(arg Data) {
 	arg.value = 100
-	arg.data[100] = 999
 }
 
 func changePData(arg *Data) {
 	arg.value = 100
-	arg.data[100] = 999
+}
+
+var dataSlice []int
+
+func changeDataSlice(arg []int) {
+	arg[0] = 100
 }
 
 func testPointer() {
@@ -453,11 +457,14 @@ func testPointer() {
 	var data Data
 	changeData(data)
 	fmt.Printf("\nvalue = %d\n", data.value)
-	fmt.Printf("data[100] = %d\n", data.data[100])
 
 	changePData(&data)
 	fmt.Printf("value = %d\n", data.value)
-	fmt.Printf("data[100] = %d\n", data.data[100])
+
+	dataSlice = []int{0}
+	fmt.Printf("value = %v\n", dataSlice)
+	changeDataSlice(dataSlice)
+	fmt.Printf("value = %v\n", dataSlice)
 }
 
 type Human interface {
