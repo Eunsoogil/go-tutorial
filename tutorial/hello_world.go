@@ -98,6 +98,10 @@ func main() {
 
 	testPanicRevocer()
 
+	var weirdType test = "hello"
+
+	test.testFunction(weirdType)
+
 }
 
 // var는 외부에서 선언 가능, := 의 경우 불가능
@@ -351,6 +355,12 @@ func testStruct() {
 	fmt.Println("Age: ", pers2.age)
 	fmt.Println("Job: ", pers2.job)
 	fmt.Println("Salary: ", pers2.salary)
+}
+
+type test string
+
+func (t test) testFunction() {
+	fmt.Println(t)
 }
 
 func testMap() {
