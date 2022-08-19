@@ -248,6 +248,7 @@ func basicDataTypes() {
 
 	numbersCopy := make([]int, len(neededNumbers))
 	copy(numbersCopy, neededNumbers)
+	fmt.Printf("neededNumbers %p numbersCopy %p \n", &neededNumbers, &numbersCopy)
 	slicePrintFormat("copy! capacity가 변함", numbersCopy)
 }
 
